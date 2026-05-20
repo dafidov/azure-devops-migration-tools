@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
@@ -82,10 +82,20 @@ namespace MigrationTools.FieldMaps.AzureDevops.ObjectModel
                     }
 
                     // Convert field value to numeric
-                    if (!TryConvertToNumeric(fieldValue, out var numericValue))
-                    {
-                        Log.LogWarning("FieldCalculationMap: Source field '{SourceField}' with value '{FieldValue}' is not numeric on work item {WorkItemId}. Skipping calculation.", parameter.Value, fieldValue, source.Id);
-                        return;
+                    if (!TryConvertToNumeric(fieldValue, out var numericValue)) {
+                        if (Config.ParsingFallback == FieldCalculationMapParsingFallback.RaiseError) {
+                            Log.LogError(
+                                "FieldCalculationMap: Source field '{SourceField}' with value '{FieldValue}' is not numeric on work item {WorkItemId}. Skipping calculation.",
+                                parameter.Value, fieldValue, source.Id);
+                            return;
+                        }
+
+                        if (Config.ParsingFallback == FieldCalculationMapParsingFallback.ResetToZero) {
+                            Log.LogWarning(
+                                "FieldCalculationMap: Source field '{SourceField}' with value '{FieldValue}' is not numeric on work item {WorkItemId}. resetting the value to 0.0.",
+                                parameter.Value, fieldValue, source.Id);
+                            numericValue = 0.0;
+                        }
                     }
 
                     parameterValues[parameter.Key] = numericValue;

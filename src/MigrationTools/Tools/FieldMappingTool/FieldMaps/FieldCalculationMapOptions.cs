@@ -1,8 +1,14 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MigrationTools.Tools.Infrastructure;
 
 namespace MigrationTools.Tools
 {
+    public enum FieldCalculationMapParsingFallback
+    {
+        RaiseError,
+        ResetToZero
+    }
+
     /// <summary>
     /// Performs mathematical calculations on numeric fields using NCalc expressions during migration.
     /// </summary>
@@ -15,6 +21,12 @@ namespace MigrationTools.Tools
         /// </summary>
         /// <default>null</default>
         public string expression { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parsing fallback.
+        /// </summary>
+        /// <default>null</default>
+        public FieldCalculationMapParsingFallback ParsingFallback { get; set; }
 
         /// <summary>
         /// Gets or sets a dictionary mapping variable names used in the expression to source field reference names.
@@ -40,6 +52,7 @@ namespace MigrationTools.Tools
                 { "x", "Custom.FieldB" }
             };
             targetField = "Custom.FieldC";
+            ParsingFallback = FieldCalculationMapParsingFallback.RaiseError;
         }
 
         /// <summary>
