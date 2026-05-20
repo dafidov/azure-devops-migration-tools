@@ -26,7 +26,7 @@ namespace MigrationTools.Tools
         /// Gets or sets the parsing fallback.
         /// </summary>
         /// <default>null</default>
-        public FieldCalculationMapParsingFallback ParsingFallback { get; set; }
+        public FieldCalculationMapParsingFallback parsingFallback { get; set; }
 
         /// <summary>
         /// Gets or sets a dictionary mapping variable names used in the expression to source field reference names.
@@ -52,7 +52,7 @@ namespace MigrationTools.Tools
                 { "x", "Custom.FieldB" }
             };
             targetField = "Custom.FieldC";
-            ParsingFallback = FieldCalculationMapParsingFallback.RaiseError;
+            parsingFallback = FieldCalculationMapParsingFallback.RaiseError;
         }
 
         /// <summary>
