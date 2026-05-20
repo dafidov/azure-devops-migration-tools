@@ -5,8 +5,9 @@ namespace MigrationTools.Tools
 {
     public enum FieldCalculationMapParsingFallback
     {
-        RaiseError,
-        ResetToZero
+        None,
+        RaiseError = 1,
+        ResetToZero = 2
     }
 
     /// <summary>

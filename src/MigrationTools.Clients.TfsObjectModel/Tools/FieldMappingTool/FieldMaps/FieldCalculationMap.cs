@@ -83,18 +83,26 @@ namespace MigrationTools.FieldMaps.AzureDevops.ObjectModel
 
                     // Convert field value to numeric
                     if (!TryConvertToNumeric(fieldValue, out var numericValue)) {
-                        if (Config.parsingFallback == FieldCalculationMapParsingFallback.RaiseError) {
-                            Log.LogError(
-                                "FieldCalculationMap: Source field '{SourceField}' with value '{FieldValue}' is not numeric on work item {WorkItemId}. Skipping calculation.",
-                                parameter.Value, fieldValue, source.Id);
-                            return;
-                        }
 
-                        if (Config.parsingFallback == FieldCalculationMapParsingFallback.ResetToZero) {
-                            Log.LogWarning(
-                                "FieldCalculationMap: Source field '{SourceField}' with value '{FieldValue}' is not numeric on work item {WorkItemId}. resetting the value to 0.0.",
-                                parameter.Value, fieldValue, source.Id);
-                            numericValue = 0.0;
+                        switch (Config.parsingFallback) {
+                            case FieldCalculationMapParsingFallback.RaiseError:
+                                Log.LogError(
+                                    "FieldCalculationMap: Source field '{SourceField}' with value '{FieldValue}' is not numeric on work item {WorkItemId}. Skipping calculation.",
+                                    parameter.Value, fieldValue, source.Id);
+                                break;
+
+                            case FieldCalculationMapParsingFallback.ResetToZero:
+                                Log.LogWarning(
+                                    "FieldCalculationMap: Source field '{SourceField}' with value '{FieldValue}' is not numeric on work item {WorkItemId}. resetting the value to 0.0.",
+                                    parameter.Value, fieldValue, source.Id);
+                                numericValue = 0.0;
+                                break;
+
+                            default:
+                                Log.LogError(
+                                    "FieldCalculationMap: Unsupported parsing fallback '{ParsingFallback}' for source field '{SourceField}' on work item {WorkItemId}. Skipping calculation.",
+                                    parameter.Value, fieldValue, source.Id);
+                                break;
                         }
                     }
 
