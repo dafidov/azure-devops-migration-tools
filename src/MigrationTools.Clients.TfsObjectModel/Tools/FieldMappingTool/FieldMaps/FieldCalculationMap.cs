@@ -97,12 +97,6 @@ namespace MigrationTools.FieldMaps.AzureDevops.ObjectModel
                                     parameter.Value, fieldValue, source.Id);
                                 numericValue = 0.0;
                                 break;
-
-                            default:
-                                Log.LogError(
-                                    "FieldCalculationMap: Unsupported parsing fallback '{ParsingFallback}' for source field '{SourceField}' on work item {WorkItemId}. Skipping calculation.",
-                                    parameter.Value, fieldValue, source.Id);
-                                break;
                         }
                     }
 
