@@ -22,10 +22,11 @@ namespace MigrationTools.Tools.Infrastructure
 
         /// <summary>
         /// Matches a Markdown embedded image, e.g. <c>![alt](url)</c>, capturing the URL in group 1.
-        /// Handles the optional title (<c>![alt](url "title")</c>) and angle bracket
-        /// (<c>![alt](&lt;url&gt;)</c>) forms that Azure DevOps emits.
+        /// Handles the optional double or single quoted title (<c>![alt](url "title")</c>), the
+        /// angle bracket form (<c>![alt](&lt;url&gt;)</c>), and URLs containing one level of
+        /// balanced parentheses (<c>![alt](https://host/image_(1).png)</c>).
         /// </summary>
-        public const string RegexPatternForMarkdownImageUrl = "!\\[[^\\]]*\\]\\(\\s*<?([^)\\s>]+)>?(?:\\s+\"[^\"]*\")?\\s*\\)";
+        public const string RegexPatternForMarkdownImageUrl = "!\\[[^\\]]*\\]\\(\\s*<?((?:[^()\\s>]|\\([^()\\s>]*\\))+)>?(?:\\s+(?:\"[^\"]*\"|'[^']*'))?\\s*\\)";
 
         /// <summary>
         /// Returns every embedded image URL found in the supplied field value, in the order they

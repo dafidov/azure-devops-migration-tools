@@ -51,6 +51,23 @@ namespace MigrationTools.Tests.Tools.Infrastructure
         }
 
         [TestMethod, TestCategory("L0")]
+        public void ShouldExtractUrlFromMarkdownImageWithSingleQuotedTitle()
+        {
+            var urls = EmbededImageUrlExtractor.ExtractImageUrls($"![a picture]({SourceUrl} 'The title')");
+
+            CollectionAssert.AreEqual(new[] { SourceUrl }, urls.ToArray());
+        }
+
+        [TestMethod, TestCategory("L0")]
+        public void ShouldExtractUrlContainingBalancedParentheses()
+        {
+            const string urlWithParens = "https://dev.azure.com/source/_apis/wit/attachments/1234?FileName=image_(1).png";
+            var urls = EmbededImageUrlExtractor.ExtractImageUrls($"![a picture]({urlWithParens})");
+
+            CollectionAssert.AreEqual(new[] { urlWithParens }, urls.ToArray());
+        }
+
+        [TestMethod, TestCategory("L0")]
         public void ShouldExtractUrlFromMarkdownImageWithEmptyAltText()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls($"![]({SourceUrl})");

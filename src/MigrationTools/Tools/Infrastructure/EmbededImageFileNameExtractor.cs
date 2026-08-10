@@ -31,6 +31,17 @@ namespace MigrationTools.Tools.Infrastructure
                 .Concat(Enumerable.Range(0, 32).Select(value => (char)value)));
 
         /// <summary>
+        /// Base names Windows reserves for devices, which remain reserved even with an extension
+        /// (<c>CON.png</c> is still the console device).
+        /// </summary>
+        private static readonly HashSet<string> ReservedDeviceNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "CON", "PRN", "AUX", "NUL",
+            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+        };
+
+        /// <summary>
         /// Returns the decoded, sanitised file name held in the URL's <c>FileName</c> query
         /// parameter.
         /// </summary>
@@ -107,6 +118,13 @@ namespace MigrationTools.Tools.Infrastructure
             fileName = fileName.Trim().TrimEnd('.', ' ');
 
             if (fileName.Length == 0)
+                return null;
+
+            // Windows reserves device names even when an extension follows, so CON.png would be
+            // opened as the console device rather than created as a file.
+            int firstDot = fileName.IndexOf('.');
+            string baseName = firstDot >= 0 ? fileName.Substring(0, firstDot) : fileName;
+            if (ReservedDeviceNames.Contains(baseName.TrimEnd()))
                 return null;
 
             return fileName;

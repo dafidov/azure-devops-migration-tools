@@ -148,6 +148,28 @@ namespace MigrationTools.Tests.Tools.Infrastructure
         }
 
         [TestMethod, TestCategory("L0")]
+        public void ShouldRejectWindowsReservedDeviceNames()
+        {
+            Assert.IsNull(EmbededImageFileNameExtractor.GetFileNameFromUrl(
+                "https://dev.azure.com/org/_apis/wit/attachments/1234?FileName=CON.png"));
+            Assert.IsNull(EmbededImageFileNameExtractor.GetFileNameFromUrl(
+                "https://dev.azure.com/org/_apis/wit/attachments/1234?FileName=nul"));
+            Assert.IsNull(EmbededImageFileNameExtractor.GetFileNameFromUrl(
+                "https://dev.azure.com/org/_apis/wit/attachments/1234?FileName=com1.jpg"));
+            Assert.IsNull(EmbededImageFileNameExtractor.GetFileNameFromUrl(
+                "https://dev.azure.com/org/_apis/wit/attachments/1234?FileName=LPT9.gif"));
+        }
+
+        [TestMethod, TestCategory("L0")]
+        public void ShouldNotRejectNamesThatMerelyStartWithAReservedName()
+        {
+            Assert.AreEqual("console.png", EmbededImageFileNameExtractor.GetFileNameFromUrl(
+                "https://dev.azure.com/org/_apis/wit/attachments/1234?FileName=console.png"));
+            Assert.AreEqual("aux_data.png", EmbededImageFileNameExtractor.GetFileNameFromUrl(
+                "https://dev.azure.com/org/_apis/wit/attachments/1234?FileName=aux_data.png"));
+        }
+
+        [TestMethod, TestCategory("L0")]
         public void ShouldIgnoreAFragmentFollowingTheFileName()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(

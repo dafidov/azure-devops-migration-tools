@@ -86,7 +86,7 @@ namespace MigrationTools.Tools
                 {
                     foreach (string sourceImageUrl in EmbededImageUrlExtractor.ExtractImageUrls(field.Value as string))
                     {
-                        if (!sourceImageUrl.ToLower().Contains(oldTfsurl.ToLower()) && !sourceImageUrl.ToLower().Contains(oldTfsurlOppositeSchema.ToLower()))
+                        if (sourceImageUrl.IndexOf(oldTfsurl, StringComparison.OrdinalIgnoreCase) < 0 && sourceImageUrl.IndexOf(oldTfsurlOppositeSchema, StringComparison.OrdinalIgnoreCase) < 0)
                             continue;
 
                         string newImageLink = "";
@@ -96,7 +96,6 @@ namespace MigrationTools.Tools
                         }
                         else
                         {
-                            // go upload and get newImageLink
                             newImageLink = UploadedAndRetrieveAttachmentLinkUrl(sourceImageUrl, field.Name, wi, sourcePersonalAccessToken);
 
                             // if unable to store/upload the link, should we cache that result? so the next revision will either just ignore it or try again
@@ -107,8 +106,10 @@ namespace MigrationTools.Tools
 
                         if (!string.IsNullOrWhiteSpace(newImageLink))
                         {
-                            // the url was either just uploaded or uploaded most likely because of a previous revision. we can replace it.
-                            // only the url is swapped, so the surrounding <img> attributes or Markdown alt text are left untouched.
+                            // every occurrence of the source url in the field is rewritten, not just the image
+                            // reference it was extracted from. the source url is dead after migration, so plain
+                            // links to the same attachment need updating too. surrounding <img> attributes and
+                            // Markdown alt text are untouched because only the url text itself is swapped.
                             field.Value = field.Value.ToString().Replace(sourceImageUrl, newImageLink);
                         }
                     }
@@ -127,7 +128,12 @@ namespace MigrationTools.Tools
             string imageFileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(matchedSourceUri);
             if (string.IsNullOrEmpty(imageFileName)) return null;
 
-            Log.LogDebug("EmbededImagesRepairEnricher: field '{fieldName}' has match: {matchValue}", sourceFieldName, WebUtility.HtmlDecode(matchedSourceUri));
+            // a url taken from an HTML field still carries its entities (&amp;FileName=...), which a
+            // server would read as a parameter named "amp;FileName". the decoded form is what goes over
+            // the wire; the caller keeps the original string for the field-value replacement.
+            string requestUri = WebUtility.HtmlDecode(matchedSourceUri);
+
+            Log.LogDebug("EmbededImagesRepairEnricher: field '{fieldName}' has match: {matchValue}", sourceFieldName, requestUri);
             string fullImageFilePath = Path.Combine(Path.GetTempPath(), imageFileName);
 
             try
@@ -139,19 +145,19 @@ namespace MigrationTools.Tools
                         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", sourcePersonalAccessToken);
                     }
 
-                    var result = DownloadFile(httpClient, matchedSourceUri, fullImageFilePath);
+                    var result = DownloadFile(httpClient, requestUri, fullImageFilePath);
                     if (!result.IsSuccessStatusCode)
                     {
                         if (_ignore404Errors && result.StatusCode == HttpStatusCode.NotFound)
                         {
-                            Log.LogDebug("EmbededImagesRepairEnricher: Image {MatchValue} could not be found in WorkItem {WorkItemId}, Field {FieldName}", matchedSourceUri, targetWorkItem.Id, sourceFieldName);
+                            Log.LogDebug("EmbededImagesRepairEnricher: Image {MatchValue} could not be found in WorkItem {WorkItemId}, Field {FieldName}", requestUri, targetWorkItem.Id, sourceFieldName);
                             return null;
                         }
                         else
                         {
                             // Provide more detailed error information for non-404 failures
                             Log.LogWarning("EmbededImagesRepairEnricher: Failed to download image {MatchValue} from WorkItem {WorkItemId}, Field {FieldName}. Status: {StatusCode} ({ReasonPhrase})",
-                                matchedSourceUri, targetWorkItem.Id, sourceFieldName, (int)result.StatusCode, result.ReasonPhrase);
+                                requestUri, targetWorkItem.Id, sourceFieldName, (int)result.StatusCode, result.ReasonPhrase);
                             
                             result.EnsureSuccessStatusCode();
                         }
