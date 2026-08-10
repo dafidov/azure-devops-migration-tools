@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.TeamFoundation.Client;
@@ -21,7 +20,6 @@ namespace MigrationTools.Tools
 {
     public class TfsEmbededImagesTool : EmbededImagesRepairToolBase<TfsEmbededImagesToolOptions>
     {
-        private const string RegexPatternForImageFileName = "(?<=FileName=)[^=]*";
         private const string TargetDummyWorkItemTitle = "***** DELETE THIS - Migration Tool Generated Dummy Work Item For TfsEmbededImagesTool *****";
 
         private Project _targetProject;
@@ -126,11 +124,11 @@ namespace MigrationTools.Tools
         private string UploadedAndRetrieveAttachmentLinkUrl(string matchedSourceUri, string sourceFieldName, WorkItemData targetWorkItem, string sourcePersonalAccessToken)
         {
             // save image locally and upload as attachment
-            Match newFileNameMatch = Regex.Match(matchedSourceUri, RegexPatternForImageFileName, RegexOptions.IgnoreCase);
-            if (!newFileNameMatch.Success) return null;
+            string imageFileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(matchedSourceUri);
+            if (string.IsNullOrEmpty(imageFileName)) return null;
 
             Log.LogDebug("EmbededImagesRepairEnricher: field '{fieldName}' has match: {matchValue}", sourceFieldName, WebUtility.HtmlDecode(matchedSourceUri));
-            string fullImageFilePath = Path.GetTempPath() + newFileNameMatch.Value;
+            string fullImageFilePath = Path.Combine(Path.GetTempPath(), imageFileName);
 
             try
             {
