@@ -143,7 +143,9 @@ namespace MigrationTools.Tools.Infrastructure
 
                 string prefix = collectionUrl.TrimEnd('/');
 
-                if (decodedUrl.Length <= prefix.Length)
+                // the bare collection root is not an attachment, with or without its trailing slash.
+                if (decodedUrl.Length <= prefix.Length ||
+                    decodedUrl.Equals(prefix + "/", StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 if (!decodedUrl.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))

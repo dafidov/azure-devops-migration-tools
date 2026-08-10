@@ -242,6 +242,14 @@ namespace MigrationTools.Tests.Tools.Infrastructure
         }
 
         [TestMethod, TestCategory("L0")]
+        public void ShouldRejectTheBareCollectionUrlWithATrailingSlash()
+        {
+            Assert.IsFalse(TestableEmbededImagesRepairTool.CallIsAttachmentFromSourceCollection(
+                "https://old.example/tfs/Collection/",
+                CollectionUrl, CollectionUrlOppositeSchema));
+        }
+
+        [TestMethod, TestCategory("L0")]
         public void ShouldRejectNullOrEmptyUrl()
         {
             Assert.IsFalse(TestableEmbededImagesRepairTool.CallIsAttachmentFromSourceCollection(
