@@ -6,7 +6,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
     [TestClass]
     public class EmbededImageFileNameExtractorTests
     {
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldReturnFileNameFromSimpleUrl()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -15,7 +15,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("screenshot.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldMatchTheParameterNameCaseInsensitively()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -24,7 +24,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("screenshot.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldDecodePercentEncodedSpaces()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -33,7 +33,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("my image.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldDecodePercentEncodedBracketsAndAmpersands()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -42,7 +42,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("image (1) & more.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldDecodeNonAsciiFileNames()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -51,7 +51,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("éléphant.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldStopAtTheNextQueryParameter()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -60,7 +60,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("screenshot.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldHandleHtmlEncodedQuerySeparators()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -69,7 +69,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("screenshot.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldNotMistakeFileNameGuidForFileName()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -78,7 +78,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("screenshot.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldKeepEqualsSignsInsideTheValue()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -87,7 +87,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("report=final.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldStripDirectorySegmentsRevealedByDecoding()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -96,7 +96,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("screenshot.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldStripTraversalSegmentsRevealedByDecoding()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -105,7 +105,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("evil.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldStripBackslashSegmentsRevealedByDecoding()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -114,7 +114,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual("evil.png", fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldReturnNullWhenTheNameIsOnlyTraversal()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -123,7 +123,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.IsNull(fileName);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldReturnNullWhenThereIsNoFileNameParameter()
         {
             Assert.IsNull(EmbededImageFileNameExtractor.GetFileNameFromUrl(
@@ -132,14 +132,14 @@ namespace MigrationTools.Tests.Tools.Infrastructure
                 "https://dev.azure.com/org/_apis/wit/attachments/1234?ContentType=image/png"));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldReturnNullWhenTheFileNameParameterIsEmpty()
         {
             Assert.IsNull(EmbededImageFileNameExtractor.GetFileNameFromUrl(
                 "https://dev.azure.com/org/_apis/wit/attachments/1234?FileName="));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldReturnNullForNullOrEmptyUrl()
         {
             Assert.IsNull(EmbededImageFileNameExtractor.GetFileNameFromUrl(null));
@@ -147,7 +147,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.IsNull(EmbededImageFileNameExtractor.GetFileNameFromUrl("   "));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldIgnoreAFragmentFollowingTheFileName()
         {
             var fileName = EmbededImageFileNameExtractor.GetFileNameFromUrl(

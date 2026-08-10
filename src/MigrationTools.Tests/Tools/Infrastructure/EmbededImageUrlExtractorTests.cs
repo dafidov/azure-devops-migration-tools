@@ -10,7 +10,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
         private const string SourceUrl = "https://dev.azure.com/source/_apis/wit/attachments/1234?FileName=screenshot.png";
         private const string OtherSourceUrl = "https://dev.azure.com/source/_apis/wit/attachments/5678?FileName=diagram.png";
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldExtractUrlFromHtmlImage()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls($"<div><img src=\"{SourceUrl}\" alt=\"a picture\"></div>");
@@ -18,7 +18,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             CollectionAssert.AreEqual(new[] { SourceUrl }, urls.ToArray());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldExtractUrlFromMarkdownImage()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls($"Some text ![a picture]({SourceUrl}) more text");
@@ -26,7 +26,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             CollectionAssert.AreEqual(new[] { SourceUrl }, urls.ToArray());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldNotCaptureMarkdownAltText()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls($"![{OtherSourceUrl}]({SourceUrl})");
@@ -34,7 +34,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             CollectionAssert.AreEqual(new[] { SourceUrl }, urls.ToArray());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldExtractUrlFromMarkdownImageWithTitle()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls($"![a picture]({SourceUrl} \"The title\")");
@@ -42,7 +42,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             CollectionAssert.AreEqual(new[] { SourceUrl }, urls.ToArray());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldExtractUrlFromMarkdownImageWithAngleBrackets()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls($"![a picture](<{SourceUrl}>)");
@@ -50,7 +50,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             CollectionAssert.AreEqual(new[] { SourceUrl }, urls.ToArray());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldExtractUrlFromMarkdownImageWithEmptyAltText()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls($"![]({SourceUrl})");
@@ -58,7 +58,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             CollectionAssert.AreEqual(new[] { SourceUrl }, urls.ToArray());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldIgnoreMarkdownLinksThatAreNotImages()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls($"[just a link]({SourceUrl})");
@@ -66,7 +66,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.IsEmpty(urls);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldExtractBothHtmlAndMarkdownFromTheSameField()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls(
@@ -75,7 +75,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             CollectionAssert.AreEquivalent(new[] { SourceUrl, OtherSourceUrl }, urls.ToArray());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldReturnTheSameUrlOnlyOnceWhenRepeated()
         {
             var urls = EmbededImageUrlExtractor.ExtractImageUrls(
@@ -84,20 +84,20 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             CollectionAssert.AreEqual(new[] { SourceUrl }, urls.ToArray());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldReturnEmptyForNullOrEmptyFieldValue()
         {
             Assert.IsEmpty(EmbededImageUrlExtractor.ExtractImageUrls(null));
             Assert.IsEmpty(EmbededImageUrlExtractor.ExtractImageUrls(string.Empty));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ShouldReturnEmptyWhenThereAreNoImages()
         {
             Assert.IsEmpty(EmbededImageUrlExtractor.ExtractImageUrls("Just some plain text with no images."));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ReplacingTheExtractedUrlShouldPreserveMarkdownAltText()
         {
             const string newUrl = "https://dev.azure.com/target/_apis/wit/attachments/9999?FileName=screenshot.png";
@@ -112,7 +112,7 @@ namespace MigrationTools.Tests.Tools.Infrastructure
             Assert.AreEqual($"![a picture]({newUrl})", fieldValue);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("L0")]
         public void ReplacingTheExtractedUrlShouldPreserveHtmlAttributes()
         {
             const string newUrl = "https://dev.azure.com/target/_apis/wit/attachments/9999?FileName=screenshot.png";
