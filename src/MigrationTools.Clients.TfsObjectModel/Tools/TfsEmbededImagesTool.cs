@@ -21,7 +21,6 @@ namespace MigrationTools.Tools
 {
     public class TfsEmbededImagesTool : EmbededImagesRepairToolBase<TfsEmbededImagesToolOptions>
     {
-        private const string RegexPatternForImageUrl = "(?<=<img.*?src=\")[^\"]*";
         private const string RegexPatternForImageFileName = "(?<=FileName=)[^=]*";
         private const string TargetDummyWorkItemTitle = "***** DELETE THIS - Migration Tool Generated Dummy Work Item For TfsEmbededImagesTool *****";
 
@@ -74,49 +73,51 @@ namespace MigrationTools.Tools
 
         protected override void FixEmbededImages(WorkItemData wi, string oldTfsurl, string newTfsurl, string sourcePersonalAccessToken = "")
         {
-            Log.LogInformation("EmbededImagesRepairEnricher: Fixing HTML field attachments for work item {Id} from {OldTfsurl} to {NewTfsUrl}", wi.Id, oldTfsurl, newTfsurl);
+            Log.LogInformation("EmbededImagesRepairEnricher: Fixing HTML and Markdown field attachments for work item {Id} from {OldTfsurl} to {NewTfsUrl}", wi.Id, oldTfsurl, newTfsurl);
 
             var oldTfsurlOppositeSchema = GetUrlWithOppositeSchema(oldTfsurl);
 
             foreach (Field field in wi.ToWorkItem().Fields)
             {
+                // A rich text field keeps FieldType.Html even when the project stores its content as
+                // Markdown, so both formats are looked for in the same set of fields.
                 if (field.FieldDefinition.FieldType != FieldType.Html && field.FieldDefinition.FieldType != FieldType.History)
                     continue;
 
                 try
                 {
-                    MatchCollection matches = Regex.Matches((string)field.Value, RegexPatternForImageUrl);
-                    foreach (Match match in matches)
+                    foreach (string sourceImageUrl in EmbededImageUrlExtractor.ExtractImageUrls(field.Value as string))
                     {
-                        if (!match.Value.ToLower().Contains(oldTfsurl.ToLower()) && !match.Value.ToLower().Contains(oldTfsurlOppositeSchema.ToLower()))
+                        if (!sourceImageUrl.ToLower().Contains(oldTfsurl.ToLower()) && !sourceImageUrl.ToLower().Contains(oldTfsurlOppositeSchema.ToLower()))
                             continue;
 
                         string newImageLink = "";
-                        if (_cachedUploadedUrisBySourceValue.ContainsKey(match.Value))
+                        if (_cachedUploadedUrisBySourceValue.ContainsKey(sourceImageUrl))
                         {
-                            newImageLink = _cachedUploadedUrisBySourceValue[match.Value];
+                            newImageLink = _cachedUploadedUrisBySourceValue[sourceImageUrl];
                         }
                         else
                         {
                             // go upload and get newImageLink
-                            newImageLink = UploadedAndRetrieveAttachmentLinkUrl(match.Value, field.Name, wi, sourcePersonalAccessToken);
+                            newImageLink = UploadedAndRetrieveAttachmentLinkUrl(sourceImageUrl, field.Name, wi, sourcePersonalAccessToken);
 
                             // if unable to store/upload the link, should we cache that result? so the next revision will either just ignore it or try again
                             //   for now, i think the best option is to set it to null so we don't retry an upload, with the assumption being that the next
                             //   upload will most likely fail and just cause the revision process to take longer
-                            _cachedUploadedUrisBySourceValue[match.Value] = newImageLink;
+                            _cachedUploadedUrisBySourceValue[sourceImageUrl] = newImageLink;
                         }
 
                         if (!string.IsNullOrWhiteSpace(newImageLink))
                         {
-                            // the match.Value was either just uploaded or uploaded most likely because of a previous revision. we can replace it
-                            field.Value = field.Value.ToString().Replace(match.Value, newImageLink);
+                            // the url was either just uploaded or uploaded most likely because of a previous revision. we can replace it.
+                            // only the url is swapped, so the surrounding <img> attributes or Markdown alt text are left untouched.
+                            field.Value = field.Value.ToString().Replace(sourceImageUrl, newImageLink);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log.LogError(ex, "EmbededImagesRepairEnricher: Unable to fix HTML field attachments for work item {wiId} from {oldTfsurl} to {newTfsurl}", wi.Id, oldTfsurl, newTfsurl);
+                    Log.LogError(ex, "EmbededImagesRepairEnricher: Unable to fix HTML or Markdown field attachments for work item {wiId} from {oldTfsurl} to {newTfsurl}", wi.Id, oldTfsurl, newTfsurl);
                     Telemetry.TrackException(ex, null);
                 }
             }
