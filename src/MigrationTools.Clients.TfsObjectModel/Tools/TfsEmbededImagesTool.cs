@@ -86,7 +86,10 @@ namespace MigrationTools.Tools
                 {
                     foreach (string sourceImageUrl in EmbededImageUrlExtractor.ExtractImageUrls(field.Value as string))
                     {
-                        if (sourceImageUrl.IndexOf(oldTfsurl, StringComparison.OrdinalIgnoreCase) < 0 && sourceImageUrl.IndexOf(oldTfsurlOppositeSchema, StringComparison.OrdinalIgnoreCase) < 0)
+                        // prefix match with a boundary, not a substring check: the url is untrusted
+                        // field content and the download request carries the source credentials, so it
+                        // must actually point into the source collection rather than merely mention it.
+                        if (!IsAttachmentFromSourceCollection(sourceImageUrl, oldTfsurl, oldTfsurlOppositeSchema))
                             continue;
 
                         string newImageLink = "";
